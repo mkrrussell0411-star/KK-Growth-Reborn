@@ -259,7 +259,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
            '  User: player says stop growing\n' +
            '  You: (roleplay response, NO <growth> tag)\n\n' +
            'After a player says command, return to normal character roleplay.\n' +
-           'Be creative, playful, and immersive. This is a growth expansion fantasy scenario.';
+           'Be creative, playful, and immersive. This is a growth expansion fantasy scenario.' +
+           (cfg.minTokens > 0
+             ? '\n\n=== RESPONSE LENGTH ===\nYour response MUST be at least ' + cfg.minTokens + ' tokens long (roughly ' + Math.round(cfg.minTokens * 0.75) + ' words). Write detailed, immersive prose to meet this minimum. Do not cut the response short.'
+             : '');
   }
 
   /* ---- send message ---- */
@@ -281,7 +284,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     // send stream:false for maximum compatibility; we handle both formats below
     var reqObj = { model: cfg.model, messages: messages, stream: false };
     if (cfg.maxTokens > 0) reqObj.max_tokens = cfg.maxTokens;
-    if (cfg.minTokens > 0) reqObj.min_tokens = cfg.minTokens;
+    if (cfg.minTokens > 0) { reqObj.min_tokens = cfg.minTokens; reqObj.minimum_tokens = cfg.minTokens; }
     var body = JSON.stringify(reqObj);
 
     fetch('/api/proxy/chat', {
