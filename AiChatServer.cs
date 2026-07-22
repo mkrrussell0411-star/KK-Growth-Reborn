@@ -286,7 +286,9 @@ namespace KK_Growth
             RespondText(ctx, "application/json",
                 "{\"apiKey\":\"" + EscapeJson(GrowthPlugin.AiApiKey.Value) +
                 "\",\"apiUrl\":\"" + EscapeJson(GrowthPlugin.AiApiUrl.Value) +
-                "\",\"model\":\"" + EscapeJson(GrowthPlugin.AiModel.Value) + "\"}");
+                "\",\"model\":\"" + EscapeJson(GrowthPlugin.AiModel.Value) +
+                "\",\"minTokens\":" + GrowthPlugin.AiMinTokens.Value +
+                ",\"maxTokens\":" + GrowthPlugin.AiMaxTokens.Value + "}");
         }
 
         private void HandleSetConfig(HttpListenerContext ctx)
@@ -298,6 +300,10 @@ namespace KK_Growth
             if (apiKey != null) GrowthPlugin.AiApiKey.Value = apiKey;
             if (apiUrl != null) GrowthPlugin.AiApiUrl.Value = apiUrl;
             if (model != null) GrowthPlugin.AiModel.Value = model;
+            int minTokens = ParseJsonInt(body, "minTokens", -1);
+            int maxTokens = ParseJsonInt(body, "maxTokens", -1);
+            if (minTokens >= 0) GrowthPlugin.AiMinTokens.Value = minTokens;
+            if (maxTokens >= 0) GrowthPlugin.AiMaxTokens.Value = maxTokens;
             RespondText(ctx, "application/json", "{\"ok\":true}");
         }
 

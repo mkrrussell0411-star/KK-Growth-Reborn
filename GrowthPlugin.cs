@@ -75,6 +75,8 @@ namespace KK_Growth
 		public static ConfigEntry<string> AiModel { get; private set; }
 		public static ConfigEntry<int> AiServerPort { get; private set; }
 		public static ConfigEntry<BepInEx.Configuration.KeyboardShortcut> AiChatHotkey { get; private set; }
+		public static ConfigEntry<int> AiMinTokens { get; private set; }
+		public static ConfigEntry<int> AiMaxTokens { get; private set; }
 
 		// Token: 0x17000010 RID: 16
 		// (get) Token: 0x06000053 RID: 83 RVA: 0x00003677 File Offset: 0x00001877
@@ -117,6 +119,8 @@ namespace KK_Growth
 			GrowthPlugin.AiModel = base.Config.Bind<string>("AI Chat", "Model", "gpt-4o", "Model name to use for AI chat.");
 			GrowthPlugin.AiServerPort = base.Config.Bind<int>("AI Chat", "Web UI Port", 7734, new ConfigDescription("Port for the AI chat web UI server.", new AcceptableValueRange<int>(1024, 65535), new object[0]));
 			GrowthPlugin.AiChatHotkey = base.Config.Bind<BepInEx.Configuration.KeyboardShortcut>("AI Chat", "Open Chat Hotkey", new BepInEx.Configuration.KeyboardShortcut(UnityEngine.KeyCode.F8), "Hotkey to open the AI chat in your browser.");
+			GrowthPlugin.AiMinTokens = base.Config.Bind<int>("AI Chat", "Min Tokens", 0, new ConfigDescription("Minimum tokens per AI response (0 = disabled).", new AcceptableValueRange<int>(0, 4096)));
+			GrowthPlugin.AiMaxTokens = base.Config.Bind<int>("AI Chat", "Max Tokens", 512, new ConfigDescription("Maximum tokens per AI response (0 = use API default).", new AcceptableValueRange<int>(0, 16384)));
 
 			var serverGo = new UnityEngine.GameObject("KK_Growth_AiChat");
 			UnityEngine.Object.DontDestroyOnLoad(serverGo);

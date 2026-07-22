@@ -132,6 +132,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <label for='cfg-model'>Model</label>
       <input id='cfg-model' type='text' placeholder='gpt-4o'>
     </div>
+    <div style='display:flex;gap:10px'>
+      <div class='field' style='flex:1'>
+        <label for='cfg-min-tokens'>Min Tokens</label>
+        <input id='cfg-min-tokens' type='number' min='0' max='4096' placeholder='0 (disabled)'>
+        <div class='hint'>0 = disabled</div>
+      </div>
+      <div class='field' style='flex:1'>
+        <label for='cfg-max-tokens'>Max Tokens</label>
+        <input id='cfg-max-tokens' type='number' min='0' max='16384' placeholder='512'>
+        <div class='hint'>0 = API default</div>
+      </div>
+    </div>
     <div class='modal-footer'>
       <button class='btn-secondary' id='cfg-cancel'>Cancel</button>
       <button class='btn-primary' id='cfg-save'>Save &amp; Close</button>
@@ -143,7 +155,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 (function() {
   'use strict';
 
-  var cfg = { url: 'https://api.openai.com/v1', key: '', model: 'gpt-4o' };
+  var cfg = { url: 'https://api.openai.com/v1', key: '', model: 'gpt-4o', minTokens: 0, maxTokens: 512 };
   var history = [];
   var busy = false;
   var chars = [];
@@ -167,6 +179,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       if (d.apiUrl) cfg.url = d.apiUrl;
       if (d.apiKey) cfg.key = d.apiKey;
       if (d.model) cfg.model = d.model;
+      if (d.minTokens !== undefined) cfg.minTokens = d.minTokens;
+      if (d.maxTokens !== undefined) cfg.maxTokens = d.maxTokens;
     }).catch(function() {});
   }
 
@@ -265,7 +279,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
     var messages = [{ role: 'system', content: buildPrompt() }].concat(history);
     // send stream:false for maximum compatibility; we handle both formats below
-    var body = JSON.stringify({ model: cfg.model, messages: messages, stream: false });
+    var reqObj = { model: cfg.model, messages: messages, stream: false };
+    if (cfg.maxTokens > 0) reqObj.max_tokens = cfg.maxTokens;
+    if (cfg.minTokens > 0) reqObj.min_tokens = cfg.minTokens;
+    var body = JSON.stringify(reqObj);
 
     fetch('/api/proxy/chat', {
       method: 'POST',
@@ -385,6 +402,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     document.getElementById('cfg-url').value = cfg.url;
     document.getElementById('cfg-key').value = cfg.key;
     document.getElementById('cfg-model').value = cfg.model;
+    document.getElementById('cfg-min-tokens').value = cfg.minTokens;
+    document.getElementById('cfg-max-tokens').value = cfg.maxTokens;
     document.getElementById('cfg-modal').classList.remove('hidden');
   }
 
@@ -393,13 +412,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   }
 
   function saveCfg() {
-    cfg.url   = document.getElementById('cfg-url').value.trim();
-    cfg.key   = document.getElementById('cfg-key').value.trim();
-    cfg.model = document.getElementById('cfg-model').value.trim();
+    cfg.url       = document.getElementById('cfg-url').value.trim();
+    cfg.key       = document.getElementById('cfg-key').value.trim();
+    cfg.model     = document.getElementById('cfg-model').value.trim();
+    cfg.minTokens = parseInt(document.getElementById('cfg-min-tokens').value) || 0;
+    cfg.maxTokens = parseInt(document.getElementById('cfg-max-tokens').value) || 0;
     fetch('/api/config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ apiUrl: cfg.url, apiKey: cfg.key, model: cfg.model })
+      body: JSON.stringify({ apiUrl: cfg.url, apiKey: cfg.key, model: cfg.model, minTokens: cfg.minTokens, maxTokens: cfg.maxTokens })
     }).catch(function() {});
     closeCfg();
     addInfo('Configuration saved.');
