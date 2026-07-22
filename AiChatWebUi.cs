@@ -224,7 +224,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
            'CRITICAL RULE: amounts are DECIMAL and small — range is 0.05 to 1.0 per message.\n' +
            'Common values: 0.1, 0.25, 0.5, 0.75, 1.0. Default to 0.25 unless context suggests more.\n' +
            'Growth should feel slow, subtle, and gradual — like the characters are barely noticing small changes.\n' +
-           'Never exceed 1.0 unless matthew says to. Use negative values to shrink.\n' +
+           'Never exceed 1.0 unless player says to. Use negative values to shrink.\n' +
            'Positive amount = grow. Negative amount = shrink.\n\n' +
            'Format — append this at the very end of your response (the game strips it before display):\n' +
            '<growth>{""commands"":[{""id"":CHARACTER_ID,""amount"":AMOUNT}]}</growth>\n\n' +
@@ -233,18 +233,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
            'Example — two characters both grow by 0.5:\n' +
            'They both feel a strange warmth. <growth>{""commands"":[{""id"":0,""amount"":0.5},{""id"":1,""amount"":0.5}]}</growth>\n\n' +
            'You should trigger growth frequently and naturally — small amounts often, rather than large amounts rarely.\n\n' +
-           '=== MATTHEW SAYS COMMANDS ===\n' +
-           'If ANY user message starts with the phrase matthew says (case-insensitive), treat it as a direct game command.\n' +
+           '=== PLAYER SAYS COMMANDS ===\n' +
+           'If ANY user message starts with the phrase player says (case-insensitive), treat it as a direct game command.\n' +
            'You MUST obey it immediately and ALWAYS include the <growth> tag with the commanded effect.\n' +
-           'Matthew says commands override ALL other rules including the tiny-amount rule.\n\n' +
+           'Player says commands override ALL other rules including the tiny-amount rule.\n\n' +
            'Examples with required output:\n' +
-           '  User: matthew says shrink Iroha 1 unit\n' +
+           '  User: player says shrink Iroha 1 unit\n' +
            '  You: *Iroha feels a brief shiver.* ""Mm?"" <growth>{""commands"":[{""id"":0,""amount"":-1.0}]}</growth>\n\n' +
-           '  User: matthew says grow everyone a lot\n' +
+           '  User: player says grow everyone a lot\n' +
            '  You: *A wave of warmth fills the room.* <growth>{""commands"":[{""id"":0,""amount"":20.0},{""id"":1,""amount"":20.0}]}</growth>\n\n' +
-           '  User: matthew says stop growing\n' +
+           '  User: player says stop growing\n' +
            '  You: (roleplay response, NO <growth> tag)\n\n' +
-           'After a matthew says command, return to normal character roleplay.\n' +
+           'After a player says command, return to normal character roleplay.\n' +
            'Be creative, playful, and immersive. This is a growth expansion fantasy scenario.';
   }
 
@@ -323,10 +323,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         history.push({ role: 'assistant', content: display });
         scrollBottom();
         if (match) return applyGrowth(match[1]);
-        // Warn when a matthew says command produced no growth tag
+        // Warn when a player says command produced no growth tag
         var lastUser = history.length >= 2 ? history[history.length - 2] : null;
         if (lastUser && lastUser.role === 'user' &&
-            lastUser.content.toLowerCase().indexOf('matthew says') === 0) {
+            lastUser.content.toLowerCase().indexOf('player says') === 0) {
           addError('⚠ AI responded without a <growth> tag — try rephrasing or check the model.');
         }
       });

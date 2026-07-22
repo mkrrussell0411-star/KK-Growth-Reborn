@@ -35,7 +35,7 @@ Press **F8** (configurable) while in-game to open the AI chat in your browser. T
 
 - The AI roleplays as the characters in the scene and naturally triggers growth or shrink by including a hidden `<growth>` tag in its responses.
 - Growth amounts are **float values** in the range **0.05 – 1.0** per message (roughly 0.29 – 5.71 ft).
-- Use **"matthew says"** at the start of any message to override AI behaviour — e.g. `matthew says grow Iroha a lot` or `matthew says shrink everyone`.
+- Use **"player says"** at the start of any message to override AI behaviour — e.g. `player says grow Iroha a lot` or `player says shrink everyone`.
 - Character ID 0 is always the male protagonist.
 
 ### Configuration (F1 → AI Chat section)
