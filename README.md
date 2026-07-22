@@ -47,6 +47,8 @@ Press **F8** (configurable) while in-game to open the AI chat in your browser. T
 | Model | `gpt-4o` | Model name |
 | Web UI Port | `7734` | Local port for the chat server |
 | Open Chat Hotkey | `F8` | Hotkey to open the chat in your browser |
+| Min Tokens | `0` | Minimum tokens per response (0 = disabled) |
+| Max Tokens | `512` | Maximum tokens per response (0 = API default) |
 
 <details>
 <summary><strong>Deep dive — how the AI chat system works internally</strong></summary>
@@ -231,6 +233,8 @@ The proxy forwards the request body unchanged to `{API_BASE_URL}/chat/completion
 - Any other OpenAI-compatible proxy
 
 The frontend sends `stream: false` and accepts both plain JSON (`choices[0].message.content`) and SSE line-delimited format (`data: {...}`) since some providers return streaming format even when not requested.
+
+When **Max Tokens** is set to a non-zero value, `max_tokens` is added to the request body. When **Min Tokens** is non-zero, `min_tokens` is added as well. Both are omitted entirely when set to 0, leaving the API to use its own defaults. Note that `min_tokens` is not supported by all providers and may be silently ignored.
 
 ---
 
