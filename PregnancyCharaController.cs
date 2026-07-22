@@ -12,6 +12,26 @@ namespace KK_Growth
 	{
 		public PregnancyData Data { get; private set; }
 
+		internal float StudioBustPercent = -1f;
+		internal float StudioHipsPercent = -1f;
+		internal float StudioHeightPercent = -1f;
+
+		internal bool HasStudioOverride(string bone)
+		{
+			if ((bone == "cf_d_bust01_R" || bone == "cf_d_bust01_L") && StudioBustPercent >= 0f) return true;
+			if ((bone == "cf_s_siri_R" || bone == "cf_s_siri_L" || bone == "cf_j_waist01") && StudioHipsPercent >= 0f) return true;
+			if (bone == "cf_n_height" && StudioHeightPercent >= 0f) return true;
+			return false;
+		}
+
+		internal float GetStudioBonePercent(string bone)
+		{
+			if ((bone == "cf_d_bust01_R" || bone == "cf_d_bust01_L") && StudioBustPercent >= 0f) return StudioBustPercent;
+			if ((bone == "cf_s_siri_R" || bone == "cf_s_siri_L" || bone == "cf_j_waist01") && StudioHipsPercent >= 0f) return StudioHipsPercent;
+			if (bone == "cf_n_height" && StudioHeightPercent >= 0f) return StudioHeightPercent;
+			return 0f;
+		}
+
 		public PregnancyCharaController()
 		{
 			this.Data = new PregnancyData();
@@ -109,7 +129,7 @@ namespace KK_Growth
 			return array;
 		}
 
-		public int InflationAmount
+		public float InflationAmount
 		{
 			get
 			{
@@ -117,7 +137,7 @@ namespace KK_Growth
 			}
 			set
 			{
-				this._inflationAmount = Mathf.Clamp(value, 0, GrowthPlugin.NutTotal.Value);
+				this._inflationAmount = Mathf.Clamp(value, 0f, GrowthPlugin.NutTotal.Value);
 			}
 		}
 
@@ -125,29 +145,35 @@ namespace KK_Growth
 		{
 			get
 			{
-				return (float)this.InflationAmount + this._inflationChange > 0.01f;
+				return this.InflationAmount + this._inflationChange > 0.01f;
 			}
 		}
 
 		public float GetInflationEffectPercent()
 		{
-			return Mathf.Clamp01(((float)this.InflationAmount + this._inflationChange) / (float)GrowthPlugin.NutTotal.Value);
+			return Mathf.Clamp01((this.InflationAmount + this._inflationChange) / (float)GrowthPlugin.NutTotal.Value);
 		}
 
-		public void AddInflation(int amount)
+		public void SetInflationDirect(float newAmount)
 		{
-			int orig = this.InflationAmount;
+			this.InflationAmount = newAmount;
+			this._inflationChange = 0f;
+		}
+
+		public void AddInflation(float amount)
+		{
+			float orig = this.InflationAmount;
 			this.InflationAmount += amount;
-			int change = this.InflationAmount - orig;
-			this._inflationChange -= (float)change;
+			float change = this.InflationAmount - orig;
+			this._inflationChange -= change;
 		}
 
-		public void DrainInflation(int amount)
+		public void DrainInflation(float amount)
 		{
-			int orig = this.InflationAmount;
+			float orig = this.InflationAmount;
 			this.InflationAmount -= amount;
-			int change = orig - this.InflationAmount;
-			this._inflationChange += (float)change;
+			float change = orig - this.InflationAmount;
+			this._inflationChange += change;
 		}
 
 		protected override void Update()
@@ -221,6 +247,6 @@ namespace KK_Growth
 
 		private float _inflationChange;
 
-		private int _inflationAmount;
+		private float _inflationAmount;
 	}
 }

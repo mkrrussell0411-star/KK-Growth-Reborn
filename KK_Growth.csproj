@@ -34,39 +34,51 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\plugins\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\plugins\BepInEx\Illusion Plugins\Assembly-CSharp.dll</HintPath>
+      <HintPath>BepInEx\Illusion Plugins\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\plugins\BepInEx\Illusion Plugins\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>BepInEx\Illusion Plugins\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\..\plugins\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="ExtensibleSaveFormat">
-      <HintPath>..\..\plugins\BepInEx\plugins\KK_BepisPlugins\ExtensibleSaveFormat.dll</HintPath>
+      <HintPath>BepInEx\plugins\KK_BepisPlugins\ExtensibleSaveFormat.dll</HintPath>
     </Reference>
     <Reference Include="KKABMX">
-      <HintPath>..\..\plugins\BepInEx\plugins\KKABMX.dll</HintPath>
+      <HintPath>BepInEx\plugins\KKABMX.dll</HintPath>
     </Reference>
     <Reference Include="KKAPI">
-      <HintPath>..\..\plugins\BepInEx\plugins\KKAPI.dll</HintPath>
+      <HintPath>BepInEx\plugins\KKAPI.dll</HintPath>
     </Reference>
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
+    <Reference Include="mscorlib">
+      <HintPath>BepInEx\Illusion Plugins\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>BepInEx\Illusion Plugins\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>BepInEx\Illusion Plugins\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>BepInEx\Illusion Plugins\System.Xml.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\plugins\BepInEx\Illusion Plugins\UnityEngine.dll</HintPath>
+      <HintPath>BepInEx\Illusion Plugins\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\plugins\BepInEx\Illusion Plugins\UnityEngine.UI.dll</HintPath>
+      <HintPath>BepInEx\Illusion Plugins\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AiChatServer.cs" />
+    <Compile Include="AiChatWebUi.cs" />
     <Compile Include="GrowthGui.cs" />
     <Compile Include="GrowthPlugin.cs" />
     <Compile Include="GrowthTarget.cs" />

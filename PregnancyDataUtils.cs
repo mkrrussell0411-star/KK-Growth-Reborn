@@ -79,7 +79,7 @@ namespace KK_Growth
 				bool flag3 = heroine.intimacy >= 80 || heroine.hCount >= 5 || (heroine.parameter.attribute.bitch && heroine.favor > 50) || ((heroine.isGirlfriend || heroine.favor >= 90) && (!heroine.isVirgin || heroine.hCount >= 2 || heroine.intimacy >= 40));
 				if (flag3)
 				{
-					int pregnancyWeek = pregData.Week;
+					float pregnancyWeek = pregData.Week;
 					bool flag4 = pregnancyWeek > 0;
 					if (flag4)
 					{

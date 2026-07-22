@@ -49,7 +49,7 @@ namespace KK_Growth
 		private static void RegisterStudioControls()
 		{
 			CurrentStateCategory cat = StudioAPI.GetOrCreateCurrentStateCategory(null);
-			UniRx.ObservableExtensions.Subscribe<float>(cat.AddControl<CurrentStateCategorySlider>(new CurrentStateCategorySlider("Growth", delegate(OCIChar c)
+			UniRx.ObservableExtensions.Subscribe<float>(cat.AddControl<CurrentStateCategorySlider>(new CurrentStateCategorySlider("Growth Week", delegate(OCIChar c)
 			{
 				bool flag = c.charInfo == null;
 				float num;
@@ -67,7 +67,7 @@ namespace KK_Growth
 					}
 					else
 					{
-						num = (float)controller.Data.Week;
+						num = controller.Data.Week;
 					}
 				}
 				return num;
@@ -75,8 +75,41 @@ namespace KK_Growth
 			{
 				foreach (PregnancyCharaController ctrl in StudioAPI.GetSelectedControllers<PregnancyCharaController>())
 				{
-					ctrl.Data.Week = Mathf.RoundToInt(f);
+					ctrl.Data.Week = f;
 				}
+			});
+
+			UniRx.ObservableExtensions.Subscribe<float>(cat.AddControl<CurrentStateCategorySlider>(new CurrentStateCategorySlider("Bust Size", delegate(OCIChar c)
+			{
+				if (c.charInfo == null) return 0f;
+				PregnancyCharaController ctrl = c.charInfo.GetComponent<PregnancyCharaController>();
+				return (ctrl == null || ctrl.StudioBustPercent < 0f) ? 0f : ctrl.StudioBustPercent;
+			}, 0f, 1f)).Value, delegate(float f)
+			{
+				foreach (PregnancyCharaController ctrl in StudioAPI.GetSelectedControllers<PregnancyCharaController>())
+					ctrl.StudioBustPercent = (f <= 0f) ? -1f : f;
+			});
+
+			UniRx.ObservableExtensions.Subscribe<float>(cat.AddControl<CurrentStateCategorySlider>(new CurrentStateCategorySlider("Hips Size", delegate(OCIChar c)
+			{
+				if (c.charInfo == null) return 0f;
+				PregnancyCharaController ctrl = c.charInfo.GetComponent<PregnancyCharaController>();
+				return (ctrl == null || ctrl.StudioHipsPercent < 0f) ? 0f : ctrl.StudioHipsPercent;
+			}, 0f, 1f)).Value, delegate(float f)
+			{
+				foreach (PregnancyCharaController ctrl in StudioAPI.GetSelectedControllers<PregnancyCharaController>())
+					ctrl.StudioHipsPercent = (f <= 0f) ? -1f : f;
+			});
+
+			UniRx.ObservableExtensions.Subscribe<float>(cat.AddControl<CurrentStateCategorySlider>(new CurrentStateCategorySlider("Height", delegate(OCIChar c)
+			{
+				if (c.charInfo == null) return 0f;
+				PregnancyCharaController ctrl = c.charInfo.GetComponent<PregnancyCharaController>();
+				return (ctrl == null || ctrl.StudioHeightPercent < 0f) ? 0f : ctrl.StudioHeightPercent;
+			}, 0f, 1f)).Value, delegate(float f)
+			{
+				foreach (PregnancyCharaController ctrl in StudioAPI.GetSelectedControllers<PregnancyCharaController>())
+					ctrl.StudioHeightPercent = (f <= 0f) ? -1f : f;
 			});
 		}
 
@@ -99,13 +132,22 @@ namespace KK_Growth
 			MakerSlider weeksSlider = e.AddControl<MakerSlider>(new MakerSlider(cat, "Orgasms Absorbed", 0f, (float)PregnancyData.LeaveSchoolWeek - 1f, 0f, GrowthGui._pluginInstance));
 			weeksSlider.ValueToString = (float f) => Mathf.RoundToInt(f).ToString();
 			weeksSlider.StringToValue = (string s) => (float)int.Parse(s);
-			CharacterExtensions.BindToFunctionController<PregnancyCharaController, float>(weeksSlider, (PregnancyCharaController controller) => (float)controller.Data.Week, delegate(PregnancyCharaController controller, float value)
+			CharacterExtensions.BindToFunctionController<PregnancyCharaController, float>(weeksSlider, (PregnancyCharaController controller) => controller.Data.Week, delegate(PregnancyCharaController controller, float value)
 			{
-				controller.Data.Week = Mathf.RoundToInt(value);
+				controller.Data.Week = value;
 			});
 			e.AddControl<MakerText>(new MakerText(female ? "The total number of male orgasms absorbed, increasing this value increasing scaling." : "The only way for male characters to get pregnant is to manually set this slider above 0.", cat, GrowthGui._pluginInstance)
 			{
 				TextColor = hintColor
+			});
+			MakerButton resetButton = e.AddControl<MakerButton>(new MakerButton("Reset Growth", cat, GrowthGui._pluginInstance));
+			resetButton.OnClick.AddListener(delegate
+			{
+				PregnancyCharaController ctrl = MakerAPI.GetCharacterControl().GetComponent<PregnancyCharaController>();
+				if (ctrl == null) return;
+				ctrl.Data.PregnancyCount = 0;
+				ctrl.Data.WeeksSinceLastPregnancy = 0;
+				weeksSlider.Value = 0f;
 			});
 		}
 

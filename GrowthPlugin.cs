@@ -58,20 +58,23 @@ namespace KK_Growth
 		// (set) Token: 0x0600004C RID: 76 RVA: 0x00003642 File Offset: 0x00001842
 		public static ConfigEntry<bool> HShrink { get; private set; }
 
-		// Token: 0x1700000D RID: 13
-		// (get) Token: 0x0600004D RID: 77 RVA: 0x0000364A File Offset: 0x0000184A
-		// (set) Token: 0x0600004E RID: 78 RVA: 0x00003651 File Offset: 0x00001851
 		public static ConfigEntry<float> BreastExpansion { get; private set; }
 
-		// Token: 0x1700000E RID: 14
-		// (get) Token: 0x0600004F RID: 79 RVA: 0x00003659 File Offset: 0x00001859
-		// (set) Token: 0x06000050 RID: 80 RVA: 0x00003660 File Offset: 0x00001860
 		public static ConfigEntry<float> AssExpansion { get; private set; }
+
+		public static ConfigEntry<bool> ResidualDecay { get; private set; }
+		public static ConfigEntry<int> ResidualDecayRate { get; private set; }
 
 		// Token: 0x1700000F RID: 15
 		// (get) Token: 0x06000051 RID: 81 RVA: 0x00003668 File Offset: 0x00001868
 		// (set) Token: 0x06000052 RID: 82 RVA: 0x0000366F File Offset: 0x0000186F
 		public static ConfigEntry<float> HeightScale { get; private set; }
+
+		public static ConfigEntry<string> AiApiKey { get; private set; }
+		public static ConfigEntry<string> AiApiUrl { get; private set; }
+		public static ConfigEntry<string> AiModel { get; private set; }
+		public static ConfigEntry<int> AiServerPort { get; private set; }
+		public static ConfigEntry<BepInEx.Configuration.KeyboardShortcut> AiChatHotkey { get; private set; }
 
 		// Token: 0x17000010 RID: 16
 		// (get) Token: 0x06000053 RID: 83 RVA: 0x00003677 File Offset: 0x00001877
@@ -95,11 +98,13 @@ namespace KK_Growth
 		{
 			GrowthPlugin.Logger = base.Logger;
 			GrowthPlugin.HeightScale = base.Config.Bind<float>("General", "Height Scaling slider (Requires Restart)", 50f, new ConfigDescription("Modifer for height scaling. Amount of growth per male orgasm is equal to this value/orgasms to final size. Values smaller than 1 cause shrinking, larger than 1 growth.", new AcceptableValueRange<float>(0.1f, 1000f), new object[0]));
-			GrowthPlugin.BreastExpansion = base.Config.Bind<float>("General", "Breast Expansion slider (Requires Restart)", 10f, new ConfigDescription("Modifer for breast expansion. Values smaller than 1 cause shrinking, larger than 1 growth.", new AcceptableValueRange<float>(0.1f, 30f), new object[0]));
-			GrowthPlugin.AssExpansion = base.Config.Bind<float>("General", "Ass Expansion slider (Requires Restart)", 10f, new ConfigDescription("Modifer for breast expansion. Values smaller than 1 cause shrinking, larger than 1 growth.", new AcceptableValueRange<float>(0.1f, 30f), new object[0]));
+			GrowthPlugin.BreastExpansion = base.Config.Bind<float>("General", "Breast Expansion slider (Requires Restart)", 10f, new ConfigDescription("Modifier for bust expansion. Amount of growth per orgasm is equal to this value / orgasms to final size. Values below 1 cause shrinking, above 1 growth.", new AcceptableValueRange<float>(0.1f, 1000f), new object[0]));
+			GrowthPlugin.AssExpansion = base.Config.Bind<float>("General", "Ass Expansion slider (Requires Restart)", 10f, new ConfigDescription("Modifier for hip/ass expansion. Amount of growth per orgasm is equal to this value / orgasms to final size. Values below 1 cause shrinking, above 1 growth.", new AcceptableValueRange<float>(0.1f, 1000f), new object[0]));
 			GrowthPlugin.NutTotal = base.Config.Bind<int>("General", "Orgasms to final size", 1000, new ConfigDescription("Total number of orgasms needed for female to reach final size", new AcceptableValueRange<int>(1, 1000), new object[0]));
 			GrowthPlugin.ResidualGrowth = base.Config.Bind<bool>("General", "Residual Growth Option", false, "Turning this option on will cause girls you've orgasmed in to grow over time.");
 			GrowthPlugin.ResidualGrowthRate = base.Config.Bind<int>("General", "Rate of Residual Growth", 1, new ConfigDescription("Equivalent times of cumming in a girl per week", new AcceptableValueRange<int>(1, 5), new object[0]));
+			GrowthPlugin.ResidualDecay = base.Config.Bind<bool>("General", "Residual Decay Option", false, "When on, characters not in an H-scene this week will slowly shrink back toward their base size.");
+			GrowthPlugin.ResidualDecayRate = base.Config.Bind<int>("General", "Rate of Residual Decay", 1, new ConfigDescription("Equivalent orgasms subtracted per week for inactive characters.", new AcceptableValueRange<int>(1, 5), new object[0]));
 			GrowthPlugin.ShowPregnancyIconEarly = base.Config.Bind<bool>("Legacy", "Show pregnancy icon early", false, "By default pregnancy status icon in class roster is shown after a few days or weeks (the character had a chance to do the test or noticed something is wrong).\nTurning this on will always make the icon show up at the end of the current day.");
 			GrowthPlugin.HShrink = base.Config.Bind<bool>("General", "Residual Growth Option", true, "Turning this option on will cause girls you've orgasmed in to shrink if you pull out in an H Scene.");
 			GrowthPlugin.HSceneMenstrIconOverride = base.Config.Bind<bool>("Legacy", "Use custom safe/risky icons in H Scenes", true, "Replaces the standard safe/risky indicators with custom indicators that can also show pregnancy and unknown status. If the status is unknown you will have to listen for the voice cues instead.\nChanges take effect after game restart.");
@@ -107,6 +112,16 @@ namespace KK_Growth
 			GrowthPlugin.GrowthSpeed = base.Config.Bind<float>("General", "Scaling speed modifier", 1f, new ConfigDescription("How quickly the girl's growth happens in scene (i.e. 3 = 3x faster).", new AcceptableValueRange<float>(0.1f, 3f), new object[0]));
 			GrowthPlugin.InflationOpenClothAtMax = base.Config.Bind<bool>("Legacy", "Open clothes at max inflation", true, "If clothes are fully on, open them when inflation reaches the max value (they 'burst' open).");
 			GrowthPlugin.GrowthTargetMode = base.Config.Bind<GrowthTarget>("General", "Growth Target", GrowthTarget.Both, "Who grows when orgasm occurs inside: Female (heroine only), Player (player character only), or Both.");
+			GrowthPlugin.AiApiKey = base.Config.Bind<string>("AI Chat", "API Key", "", "OpenAI-compatible API key (leave blank for local APIs like Ollama).");
+			GrowthPlugin.AiApiUrl = base.Config.Bind<string>("AI Chat", "API Base URL", "https://api.openai.com/v1", "Base URL for the OpenAI-compatible API.");
+			GrowthPlugin.AiModel = base.Config.Bind<string>("AI Chat", "Model", "gpt-4o", "Model name to use for AI chat.");
+			GrowthPlugin.AiServerPort = base.Config.Bind<int>("AI Chat", "Web UI Port", 7734, new ConfigDescription("Port for the AI chat web UI server.", new AcceptableValueRange<int>(1024, 65535), new object[0]));
+			GrowthPlugin.AiChatHotkey = base.Config.Bind<BepInEx.Configuration.KeyboardShortcut>("AI Chat", "Open Chat Hotkey", new BepInEx.Configuration.KeyboardShortcut(UnityEngine.KeyCode.F8), "Hotkey to open the AI chat in your browser.");
+
+			var serverGo = new UnityEngine.GameObject("KK_Growth_AiChat");
+			UnityEngine.Object.DontDestroyOnLoad(serverGo);
+			serverGo.AddComponent<AiChatServer>();
+
 			CharacterApi.RegisterExtraBehaviour<PregnancyCharaController>("KK_Growth");
 			GameAPI.RegisterExtraBehaviour<PregnancyGameController>("KK_Growth");
 			Harmony hi = new Harmony("KK_Growth");
@@ -116,9 +131,9 @@ namespace KK_Growth
 			bool flag = TimelineCompatibility.IsTimelineAvailable();
 			if (flag)
 			{
-				TimelineCompatibility.AddCharaFunctionInterpolable<int, PregnancyCharaController>("KK_Growth", "week", "Pregnancy week", delegate(OCIChar oci, PregnancyCharaController parameter, int leftValue, int rightValue, float factor)
+				TimelineCompatibility.AddCharaFunctionInterpolable<float, PregnancyCharaController>("KK_Growth", "week", "Pregnancy week", delegate(OCIChar oci, PregnancyCharaController parameter, float leftValue, float rightValue, float factor)
 				{
-					parameter.Data.Week = Mathf.RoundToInt(Mathf.LerpUnclamped((float)leftValue, (float)rightValue, factor));
+					parameter.Data.Week = Mathf.LerpUnclamped(leftValue, rightValue, factor);
 				}, null, (OCIChar oci, PregnancyCharaController parameter) => parameter.Data.Week, null, null, null, true, null, null);
 			}
 		}
@@ -184,17 +199,16 @@ namespace KK_Growth
 			[HarmonyPatch(typeof(HFlag), "GetMenstruation", new Type[] { typeof(byte) })]
 			private static void GetMenstruationOverridePrefix()
 			{
-				bool flag = GrowthPlugin.Hooks._lastHeroine != null;
-				if (flag)
+				if (GrowthPlugin.Hooks._lastHeroine == null) return;
+				IEnumerable<ChaFileControl> chaFiles = GrowthPlugin.Hooks._lastHeroine.GetRelatedChaFiles();
+				if (chaFiles == null) return;
+				MenstruationSchedule schedule = chaFiles.Select(delegate(ChaFileControl c)
 				{
-					MenstruationSchedule schedule = GrowthPlugin.Hooks._lastHeroine.GetRelatedChaFiles().Select(delegate(ChaFileControl c)
-					{
-						PregnancyData pregnancyData = PregnancyData.Load(ExtendedSave.GetExtendedDataById(c, "KK_Growth"));
-						return (pregnancyData != null) ? pregnancyData.MenstruationSchedule : MenstruationSchedule.Default;
-					}).FirstOrDefault((MenstruationSchedule x) => x > MenstruationSchedule.Default);
-					GrowthPlugin.Hooks._menstruationsBackup = HFlag.menstruations;
-					HFlag.menstruations = PregnancyCharaController.GetMenstruationsArr(schedule);
-				}
+					PregnancyData pregnancyData = PregnancyData.Load(ExtendedSave.GetExtendedDataById(c, "KK_Growth"));
+					return (pregnancyData != null) ? pregnancyData.MenstruationSchedule : MenstruationSchedule.Default;
+				}).FirstOrDefault((MenstruationSchedule x) => x > MenstruationSchedule.Default);
+				GrowthPlugin.Hooks._menstruationsBackup = HFlag.menstruations;
+				HFlag.menstruations = PregnancyCharaController.GetMenstruationsArr(schedule);
 			}
 
 			// Token: 0x0600007E RID: 126 RVA: 0x00004988 File Offset: 0x00002B88
@@ -202,6 +216,7 @@ namespace KK_Growth
 			[HarmonyPatch(typeof(HFlag), "GetMenstruation", new Type[] { typeof(byte) })]
 			private static void GetMenstruationOverridePostfix()
 			{
+				GrowthPlugin.Hooks._lastHeroine = null;
 				bool flag = GrowthPlugin.Hooks._menstruationsBackup != null;
 				if (flag)
 				{
@@ -266,9 +281,12 @@ namespace KK_Growth
 				GrowthTarget target = GrowthPlugin.GrowthTargetMode.Value;
 				if (target == GrowthTarget.Female || target == GrowthTarget.Both)
 				{
-					SaveData.Heroine heroine = HSceneUtils.GetLeadingHeroine(__instance);
-					PregnancyCharaController controller = GrowthPlugin.GetEffectController(heroine);
-					if (controller != null) controller.AddInflation(1);
+					foreach (SaveData.Heroine heroine in __instance.lstHeroine)
+					{
+						if (heroine == null) continue;
+						PregnancyCharaController controller = GrowthPlugin.GetEffectController(heroine);
+						if (controller != null) controller.AddInflation(1);
+					}
 				}
 				if (target == GrowthTarget.Player || target == GrowthTarget.Both)
 				{
@@ -290,9 +308,12 @@ namespace KK_Growth
 					GrowthTarget target = GrowthPlugin.GrowthTargetMode.Value;
 					if (target == GrowthTarget.Female || target == GrowthTarget.Both)
 					{
-						SaveData.Heroine heroine = HSceneUtils.GetLeadingHeroine(__instance);
-						PregnancyCharaController controller = GrowthPlugin.GetEffectController(heroine);
-						if (controller != null) controller.DrainInflation(drainAmount);
+						foreach (SaveData.Heroine heroine in __instance.lstHeroine)
+						{
+							if (heroine == null) continue;
+							PregnancyCharaController controller = GrowthPlugin.GetEffectController(heroine);
+							if (controller != null) controller.DrainInflation(drainAmount);
+						}
 					}
 					if (target == GrowthTarget.Player || target == GrowthTarget.Both)
 					{

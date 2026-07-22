@@ -45,6 +45,16 @@ namespace KK_Growth
 						PregnancyGameController.ProcessPendingChanges();
 					}
 				}
+				if (GrowthPlugin.ResidualDecay.Value)
+				{
+					for (int i = GrowthPlugin.ResidualDecayRate.Value; i > 0; i--)
+					{
+						PregnancyGameController.ApplyToAllDatas((SaveData.CharaData chara, PregnancyData data) =>
+							!_hadHThisWeek.Contains(chara) && SubtractPregnancyWeek(data));
+						PregnancyGameController.ProcessPendingChanges();
+					}
+				}
+				_hadHThisWeek.Clear();
 			}
 		}
 
@@ -65,23 +75,26 @@ namespace KK_Growth
 				GrowthTarget target = GrowthPlugin.GrowthTargetMode.Value;
 				if (target == GrowthTarget.Female || target == GrowthTarget.Both)
 				{
-					SaveData.Heroine heroine = hFlag.lstHeroine.First((SaveData.Heroine x) => x != null);
-					for (int i = cumCount; i > 0; i--)
+					foreach (SaveData.Heroine heroine in hFlag.lstHeroine.Where(h => h != null))
 					{
-						PregnancyGameController.StartPregnancy(heroine);
-						PregnancyGameController.ProcessPendingChanges();
+						if (cumCount > 0) _hadHThisWeek.Add(heroine);
+						for (int i = cumCount; i > 0; i--)
+						{
+							PregnancyGameController.StartPregnancy(heroine);
+							PregnancyGameController.ProcessPendingChanges();
+						}
 					}
 				}
 				if (target == GrowthTarget.Player || target == GrowthTarget.Both)
 				{
-					SaveData.Player player = Singleton<Game>.Instance.Player;
-					if (player != null)
+					PregnancyCharaController playerCtrl = GrowthPlugin.GetPlayerController();
+					if (playerCtrl != null)
 					{
+						SaveData.Player player = Singleton<Game>.Instance.Player;
+						if (cumCount > 0 && player != null) _hadHThisWeek.Add(player);
 						for (int i = cumCount; i > 0; i--)
-						{
-							PregnancyGameController.StartPregnancy(player);
-							PregnancyGameController.ProcessPendingChanges();
-						}
+							playerCtrl.Data.StartPregnancy();
+						playerCtrl.SaveData();
 					}
 				}
 			}
@@ -91,6 +104,7 @@ namespace KK_Growth
 		protected override void OnGameLoad(GameSaveLoadEventArgs args)
 		{
 			PregnancyGameController._startedPregnancies.Clear();
+			_hadHThisWeek.Clear();
 		}
 
 		// Token: 0x0600000D RID: 13 RVA: 0x000024F4 File Offset: 0x000006F4
@@ -141,13 +155,23 @@ namespace KK_Growth
 		{
 			foreach (SaveData.Heroine heroine in Singleton<Game>.Instance.HeroineList)
 			{
+				if (heroine == null) continue;
 				ApplyToDatas(heroine, action);
 			}
-			ApplyToDatas(Singleton<Game>.Instance.Player, action);
+			ApplyToPlayerData(action);
 			foreach (PregnancyCharaController controller in UnityEngine.Object.FindObjectsOfType<PregnancyCharaController>())
 			{
 				controller.ReadData();
 			}
+		}
+
+		private static void ApplyToPlayerData(Func<SaveData.CharaData, PregnancyData, bool> action)
+		{
+			PregnancyCharaController playerCtrl = GrowthPlugin.GetPlayerController();
+			if (playerCtrl == null) return;
+			SaveData.Player player = Singleton<Game>.Instance.Player;
+			if (action(player, playerCtrl.Data))
+				playerCtrl.SaveData();
 		}
 
 		private static void ApplyToDatas(SaveData.CharaData character, Func<SaveData.CharaData, PregnancyData, bool> action)
@@ -223,6 +247,14 @@ namespace KK_Growth
 			return flag2;
 		}
 
+		private static bool SubtractPregnancyWeek(PregnancyData pd)
+		{
+			if (pd == null || !pd.GameplayEnabled || pd.Week <= 0)
+				return false;
+			pd.Week--;
+			return true;
+		}
+
 		// Token: 0x06000013 RID: 19 RVA: 0x000026D0 File Offset: 0x000008D0
 		private static bool DoNothing(PregnancyData pd)
 		{
@@ -234,5 +266,7 @@ namespace KK_Growth
 
 		// Token: 0x04000003 RID: 3
 		private static readonly HashSet<SaveData.CharaData> _stoppedPregnancies = new HashSet<SaveData.CharaData>();
+
+		private static readonly HashSet<SaveData.CharaData> _hadHThisWeek = new HashSet<SaveData.CharaData>();
 	}
 }

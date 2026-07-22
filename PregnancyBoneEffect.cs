@@ -48,16 +48,24 @@ namespace KK_Growth
 					return PregnancyBoneEffect.LerpModifier(mod, prEffect);
 				}
 			}
-			bool flag3 = isPregnant || this._controller.IsInflated;
+			bool hasStudioOverride = StudioAPI.InsideStudio && this._controller.HasStudioOverride(bone);
+			bool flag3 = isPregnant || this._controller.IsInflated || hasStudioOverride;
 			if (flag3)
 			{
 				BoneModifierData mod2;
 				bool flag4 = PregnancyBoneEffect._bellyFullValues.TryGetValue(bone, out mod2);
 				if (flag4)
 				{
-					float prEffect2 = this.GetPregnancyEffectPercent();
-					float infEffect = this._controller.GetInflationEffectPercent() + prEffect2;
-					float bellySize = infEffect;
+					float bellySize;
+					if (hasStudioOverride)
+					{
+						bellySize = this._controller.GetStudioBonePercent(bone);
+					}
+					else
+					{
+						float prEffect2 = this.GetPregnancyEffectPercent();
+						bellySize = this._controller.GetInflationEffectPercent() + prEffect2;
+					}
 					return PregnancyBoneEffect.LerpModifier(mod2, bellySize);
 				}
 			}

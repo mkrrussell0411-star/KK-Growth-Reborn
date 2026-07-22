@@ -128,7 +128,7 @@ namespace KK_Growth
 		public MenstruationSchedule MenstruationSchedule = MenstruationSchedule.Default;
 
 		// Token: 0x04000016 RID: 22
-		public int Week;
+		public float Week;
 
 		// Token: 0x04000017 RID: 23
 		public int PregnancyCount;
